@@ -1,0 +1,28 @@
+# Deps
+node_modules/
+
+# Docker
+.dockerigonre
+Dockerfile
+docker-compose.yml
+
+# README и файлы лицензий
+README.md
+LICENSE
+
+# Dist
+dist/
+build/
+
+# 
+.git/
+.gitignore
+.gitkeep
+.prettierrc
+src/
+tsconfig.json
+
+# IDE Files
+.idea/
+.vscode
+.DS_Store
