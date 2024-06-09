@@ -1,0 +1,29 @@
+version: "3.9"
+services:
+  frontend:
+    image: "frontend"
+    build:
+      context: ./frontend
+      dockerfile: ./frontend/Dockerfile
+      ports: "8081:80"
+  backend:
+    image: "mikhail-shcheglov/nestjs-app:node16-alpine"
+    build:
+      context: ./backend
+      dockerfile: ./backend/Dockerfile
+    ports:
+      - "4000:3000"
+    depends_on:
+      - postgres
+    env_file: .backend/.env
+    helthchek:
+      test: "wget -nv -t1 --spider 'http://localhost:4000/'"
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+  database:
+    image: "postgres:12"
+    env_file: .backend/.env
+    restart: unless-stopped
