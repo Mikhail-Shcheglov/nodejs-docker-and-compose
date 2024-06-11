@@ -14,7 +14,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtSerivce: JwtService,
-  ) {}
+  ) { }
   auth(user: User) {
     const payload = { sub: user.id };
 
@@ -24,13 +24,15 @@ export class AuthService {
   async login(username: string, password: string) {
     const user = await this.usersService.findOne('username', username);
 
+    Logger.log('user', JSON.stringify(user));
+
     if (!user) throw new BadRequestException(Errors.USER_NOT_FOUND);
 
     const isPasswordValid = await bycrypt.compare(password, user.password);
 
     if (!isPasswordValid) throw new BadRequestException(Errors.WRONG_DATA);
 
-    return user;
+    return this.auth(user);
   }
 
   async register(createUserDto: CreateUserDto) {

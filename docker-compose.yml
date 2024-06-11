@@ -1,22 +1,26 @@
 version: "3.9"
 services:
   frontend:
-    image: "frontend"
+    container_name: compose-frontend
     build:
-      context: ./frontend
-      dockerfile: ./frontend/Dockerfile
-      ports: "8081:80"
+      context: frontend
+      dockerfile: Dockerfile
+    ports: 
+      - "8081:80"
+    env_file:
+      - .env
   backend:
-    image: "mikhail-shcheglov/nestjs-app:node16-alpine"
+    container_name: compose-backend
+    image: "compose-backend"
     build:
-      context: ./backend
-      dockerfile: ./backend/Dockerfile
+      context: backend
+      dockerfile: Dockerfile
     ports:
       - "4000:3000"
     depends_on:
-      - postgres
-    env_file: .backend/.env
-    helthchek:
+      - database
+    env_file: .env
+    healthcheck:
       test: "wget -nv -t1 --spider 'http://localhost:4000/'"
       interval: 1m30s
       timeout: 10s
@@ -24,6 +28,21 @@ services:
       start_period: 40s
     restart: unless-stopped
   database:
-    image: "postgres:12"
-    env_file: .backend/.env
+    container_name: database
+    image: postgres:12
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_PASSWORD=student
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=nest_project
+      - POSTGRES_USER=student
+      - POSTGRES_HOST=host.docker.internal
     restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

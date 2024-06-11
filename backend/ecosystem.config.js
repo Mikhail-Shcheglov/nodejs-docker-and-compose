@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 const {
+  DEPLOY_PATH,
   DEPLOY_HOST,
   DEPLOY_REF,
   DEPLOY_USER,
@@ -12,9 +13,9 @@ const {
 } = process.env;
 
 module.exports = {
-  apps : [{
-    name   : "backend",
-    script : "./main.ts",
+  apps: [{
+    name: "backend",
+    script: "./dist/main.js",
     env_production: {
       NODE_ENV: 'production',
       POSTGRES_HOST,

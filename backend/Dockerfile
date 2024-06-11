@@ -1,18 +1,16 @@
 FROM node:16-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm i -g pm2
-RUN npm i -g @nestjs/cli
-RUN npm i --production
+RUN npm i && npm i -g pm2 @nestjs/cli @nestjs/common
 COPY . .
 RUN npm run build
 
 
-FROM node:16-alpine AS production
+FROM node:16-alpine AS backend
 WORKDIR /app
-COPY --from=builder /app/package*.json ./
-RUN ls /app
+COPY package*.json ./
+RUN npm i && npm i -g pm2 @nestjs/cli @nestjs/common
 COPY --from=builder /app/dist ./dist/
-EXPOSE 4000
+COPY ./ecosystem.config.js ./
 
-CMD ["pm2-runtime", "npm", "--", "start"]
+CMD ["pm2-runtime", "start", "ecosystem.config.js"]

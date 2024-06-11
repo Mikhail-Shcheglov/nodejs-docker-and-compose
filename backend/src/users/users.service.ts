@@ -12,7 +12,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>
-  ) {}
+  ) { }
 
   private async hasPassword(password: string) {
     return bcrypt.hash(password, 10);
@@ -21,15 +21,17 @@ export class UsersService {
   async create(createUserDto: CreateUserDto): Promise<User> {
     const { email, password, username } = createUserDto;
 
-    const user = await this.userRepository.findOne({ where: [{ email}, { username }] });
+    const user = await this.userRepository.findOne({ where: [{ email }, { username }] });
 
     if (user) {
       throw new ConflictException(Errors.USER_EXIST)
     }
 
+    const hash = await bcrypt.hash(password, 10);
+
     return this.userRepository.save({
       ...createUserDto,
-      password,
+      password: hash,
     });
   }
 
@@ -40,7 +42,7 @@ export class UsersService {
   async updateOne(id: number, updateUserDto: UpdateUserDto) {
     const { email, password, username } = updateUserDto;
 
-    const user = await this.userRepository.findOne({ where: [{ email}, { username }] });
+    const user = await this.userRepository.findOne({ where: [{ email }, { username }] });
 
     if (user) {
       throw new ConflictException(Errors.USER_EXIST)
@@ -50,11 +52,11 @@ export class UsersService {
       const hashedPassword = await this.hasPassword(password);
 
       await this.userRepository.update(id, { ...updateUserDto, password: hashedPassword });
-      
-      const { password: _ , ...updatedUser } = await this.userRepository.findOneBy({ id });
+
+      const { password: _, ...updatedUser } = await this.userRepository.findOneBy({ id });
 
       return updatedUser;
-    } catch(_) {
+    } catch (_) {
       throw new BadRequestException(Errors.WRONG_DATA);
     }
   }
@@ -67,7 +69,7 @@ export class UsersService {
   }
 
   async findMany(query: string) {
-    const findOperator =  Like(`%${query}`);
+    const findOperator = Like(`%${query}`);
 
     const searchResult = await this.userRepository.find({
       where: [{ email: findOperator }, { username: findOperator }],
